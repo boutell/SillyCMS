@@ -17,7 +17,7 @@ twig.config:
 
 ## Doctrine Configuration
 doctrine.dbal:
-    dbname:   symfonysandbox
+    dbname:   sillycms
     user:     root
     password: root
 doctrine.orm:

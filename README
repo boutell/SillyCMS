@@ -1,6 +1,31 @@
 README
 ======
 
+SillyCMS is a really simple Wiki built in Symfony 2 and Doctrine 2 as a 
+learning project for Symfony 2. It is not a world-rocking, life-changing
+CMS for your client projects. 
+
+Right now the show action works, so you can visit http://sillycms/app_dev.php
+and see the home page if you have manually inserted one into the page table.
+You can load two pages, / (homepage) and /about (the about page), by loading
+the provided sillycms.sql file. To visit the about page go to
+http://sillycms/app_dev.php/about
+
+The edit action ( http://sillycms/app_dev.php/admin/edit ) is under
+construction. You should get a form allowing you to edit the home page
+(and maybe someday actually save it) but right now you get a Locale error
+from PHP. Help with this is very welcome.
+
+The rest of this README is the original Symfony 2 sandbox README.
+
+IMPORTANT: I am using .yml config files, please ignore .xml and .php
+config files left over from the sandbox. Symfony seems to use the most
+recently modified, which would be my .yml files.
+
+- Tom Boutell, tom@punkave.com
+
+* * * * * * * * * * *
+
 What is Symfony?
 ----------------
 
