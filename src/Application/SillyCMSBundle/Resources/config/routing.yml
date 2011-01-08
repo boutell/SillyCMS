@@ -1,0 +1,15 @@
+editHome:
+    pattern:  /admin/edit
+    defaults: { _controller: SillyCMSBundle:Page:edit, slug: / }
+
+edit:
+    pattern:  /admin/edit/:slug
+    defaults: { _controller: SillyCMSBundle:Page:edit }
+
+showHome:
+    pattern:  /
+    defaults: { _controller: SillyCMSBundle:Page:show, slug: / }
+
+show:
+    pattern:  /:slug
+    defaults: { _controller: SillyCMSBundle:Page:show }

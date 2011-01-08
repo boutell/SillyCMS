@@ -16,14 +16,14 @@ twig.config:
     strict_variables: %kernel.debug%
 
 ## Doctrine Configuration
-#doctrine.dbal:
-#    dbname:   xxxxxxxx
-#    user:     xxxxxxxx
-#    password: ~
+doctrine.dbal:
+    dbname:   symfonysandbox
+    user:     root
+    password: root
 doctrine.orm:
     auto_generate_proxy_classes: %kernel.debug%
     mappings:
-        HelloBundle: ~
+        SillyCMSBundle: ~
 
 ## Swiftmailer Configuration
 #swiftmailer.config:
