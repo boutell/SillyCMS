@@ -5,25 +5,46 @@ SillyCMS is a really simple Wiki built in Symfony 2 and Doctrine 2 as a
 learning project for Symfony 2. It is not a world-rocking, life-changing
 CMS for your client projects. 
 
-Right now the show action works, so you can visit http://sillycms/app_dev.php
-and see the home page if you have manually inserted one into the page table.
-You can load two pages, / (homepage) and /about (the about page), by loading
-the provided sillycms.sql file. To visit the about page go to
-http://sillycms/app_dev.php/about
+To try it out, build your database (it will be called sillycms):
 
-The edit action ( http://sillycms/app_dev.php/admin/edit ) is under
-construction. MAKE SURE YOUR PHP HAS THE intl EXTENSION if you get errors
+php app/console doctrine:database:create
+php app/console doctrine:schema:create
+
+Make sure the web folder is document root and visit the site:
+
+http://sillycms/app_dev.php
+
+The home page doesn't exist yet so click Edit and provide some content.
+
+Now access another page:
+
+http://sillycms/app_dev.php/coolbeans
+
+And provide content for that page.
+
+Notice that both pages now appear in the navigation list at the left.
+
+MAKE SURE YOUR PHP HAS THE intl EXTENSION if you get errors
 about a missing Locale class. For instance, for MacPorts:
 
 port install php5-intl
 
-The rest of this README is the original Symfony 2 sandbox README.
-
 IMPORTANT: I am using .yml config files, please ignore .xml and .php
-config files left over from the sandbox. Symfony seems to use the most
+config files left over from the sandbox. Symfony seems to honor the most
 recently modified, which would be my .yml files.
 
+TODO
+
+* Figure out the right place to add some kind of Wiki formatting rules to
+the code - is there any way to get the equivalent of the old simple_format_text helper
+in Twig-land?
+
+* Add login security, the right way using Fabien's firewall model, in order
+to learn more about that.
+
 - Tom Boutell, tom@punkave.com
+
+The rest of this README is the original Symfony 2 sandbox README.
 
 * * * * * * * * * * *
 
