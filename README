@@ -12,9 +12,10 @@ the provided sillycms.sql file. To visit the about page go to
 http://sillycms/app_dev.php/about
 
 The edit action ( http://sillycms/app_dev.php/admin/edit ) is under
-construction. You should get a form allowing you to edit the home page
-(and maybe someday actually save it) but right now you get a Locale error
-from PHP. Help with this is very welcome.
+construction. MAKE SURE YOUR PHP HAS THE intl EXTENSION if you get errors
+about a missing Locale class. For instance, for MacPorts:
+
+port install php5-intl
 
 The rest of this README is the original Symfony 2 sandbox README.
 

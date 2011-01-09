@@ -44,7 +44,7 @@ class Page
 
    public function setBody($body)
    {
-     $this->title = $body;
+     $this->body = $body;
    }
    
    public function getTitle()

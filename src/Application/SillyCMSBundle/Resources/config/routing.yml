@@ -1,14 +1,16 @@
-editHome:
-    pattern:  /admin/edit
-    defaults: { _controller: SillyCMSBundle:Page:edit, slug: / }
-
 edit:
-    pattern:  /admin/edit/:slug
-    defaults: { _controller: SillyCMSBundle:Page:edit }
+    pattern:  /admin/edit
+    defaults:
+      _controller: SillyCMSBundle:Page:edit
 
+save:
+    pattern:  /admin/save
+    defaults:
+      _controller: SillyCMSBundle:Page:save
+    
 showHome:
     pattern:  /
-    defaults: { _controller: SillyCMSBundle:Page:show, slug: / }
+    defaults: { _controller: SillyCMSBundle:Page:show, slug: '' }
 
 show:
     pattern:  /:slug

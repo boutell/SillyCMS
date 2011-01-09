@@ -2,9 +2,24 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <title>{% block title %}Hello Application{% endblock %}</title>
+        <link href="{{ asset('css/reset.css') }}" rel="stylesheet" type="text/css" />
+        <link href="{{ asset('css/main.css') }}" rel="stylesheet" type="text/css" />
+        <title>{% block title %}SillyCMS{% endblock %}</title>
     </head>
     <body>
-        {% block body %}{% endblock %}
+        <div class="page">
+            <div class="heading">
+                <h1>{{ block('title') }}</h1>
+            </div>
+            <div class="nav">
+                {% render "SillyCMSBundle:Page:index" %}
+            </div>
+            <div class="content">
+                {% block body %}{% endblock %}
+            </div>
+            <div class="footer">
+                <a href="https://github.com/boutell/SillyCMS">SillyCMS</a> is a <a href="http://www.symfony-reloaded.org/">Symfony 2</a> demo.
+            </div>
+        </div>
     </body>
 </html>

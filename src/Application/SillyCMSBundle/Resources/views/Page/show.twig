@@ -1,7 +1,7 @@
 {% extends "::layout.twig" %}
-
 {%block title %}
 	{{title}}
+	<a href="{{ path('edit', { 'slug': slug }) }}">Edit</a>
 {% endblock %}
 {%block body %}
 	{{body}}

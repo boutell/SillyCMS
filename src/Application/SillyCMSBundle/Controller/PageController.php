@@ -6,33 +6,74 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Application\SillyCMSBundle\Entity\Page;
 use Symfony\Component\Form\Form;
 use Symfony\Component\Form\TextField;
+use Symfony\Component\Form\TextareaField;
 
 class PageController extends Controller
 {
     protected $page;
+    
     protected function pre($slug)
     {
-      if (!(substr($slug, 0, 1) === '/'))
+      $em = $this->getEm();
+      $this->page = $em->getRepository('SillyCMSBundle:Page')->findOneBy(array('slug' => $slug));
+      if (!$this->page)
       {
-        // /:slug won't give us that leading /
-        $slug = '/' . $slug;
+        $this->page = new Page();
+        $this->page->setSlug($slug);
+        $this->page->setTitle('New Page');
+        $this->page->setBody('Edit this page to give it some content.');
       }
-      $em = $this->get('doctrine.orm.entity_manager');
-      $this->page = $em->createQuery('SELECT p FROM SillyCMSBundle:Page p WHERE p.slug = ?1')->setParameter(1, $slug)->getSingleResult();
     }
+    
+    protected function getForm()
+    {
+      $form = new Form('page', $this->page, $this->get('validator'));
+      $form->add(new TextField('title'));
+      $form->add(new TextareaField('body'));
+      return $form;
+    }
+    
+    protected function getEm()
+    {
+      return $this->get('doctrine.orm.entity_manager');
+    }
+    
+    public function indexAction()
+    {
+      $em = $this->getEm();
+      $pages = $em->createQuery('select p from SillyCMSBundle:Page p order by p.title')->getResult();
+      return $this->render('SillyCMSBundle:Page:index.twig', array('pages' => $pages));
+    }
+    
     public function showAction($slug)
     {
         $this->pre($slug);
         return $this->render('SillyCMSBundle:Page:show.twig', array('title' => $this->page->getTitle(), 'slug' => $this->page->getSlug(), 'body' => $this->page->getBody()));
     }
     
-    public function editAction($slug)
+    public function editAction()
     {
+        $slug = $this->get('request')->get('slug');
         $this->pre($slug);
-        $form = new Form('page', $this->page, $this->get('validator'));
-        $form->add(new TextField('title'));
-        $form->add(new TextField('body'));
+        $form = $this->getForm();
+        return $this->render('SillyCMSBundle:Page:edit.twig', array('form' => $form, 'slug' => $slug));
+    }
+    
+    public function saveAction()
+    {
+        $slug = $this->get('request')->get('slug');
+        $this->pre($slug);
+        $form = $this->getForm();
 
-        return $this->render('SillyCMSBundle:Page:edit.twig', array('form' => $form));
+        $form->bind($this->get('request')->request->get('page'));
+
+        if ($form->isValid()) 
+        {
+          $em = $this->getEm();
+          $em->persist($this->page);
+          $em->flush();
+          return $this->redirect($this->generateUrl('show', array('slug' => $slug)));
+        }
+        return $this->render('SillyCMSBundle:Page:edit.twig', array('form' => $form, 'slug' => $slug));
     }
 }

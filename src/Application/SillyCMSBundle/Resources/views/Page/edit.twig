@@ -4,5 +4,8 @@
 	Editing Page
 {% endblock %}
 {%block body %}
-	{{form.render}}
+	<form action="{{ path('save', { 'slug': slug }) }}" {{ form_enctype(form) }} method="post">
+	    {{ form_field(form) }}
+	    <input type="submit" value="Save" class="submit" />
+	</form>
 {% endblock %}
