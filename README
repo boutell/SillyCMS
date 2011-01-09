@@ -39,8 +39,12 @@ TODO
 the code - is there any way to get the equivalent of the old simple_format_text helper
 in Twig-land?
 
-* Add login security, the right way using Fabien's firewall model, in order
-to learn more about that.
+* Add multiuser security using Doctrine objects and not just an in-memory user provider
+
+* Add login and logout buttons, and show edit buttons depending on whether the user is
+already logged in or not. Right now Symfony 2 appears to have no access to the user login
+status on pages that don't absolutely require login, which is problematic, but let's see
+what Fabien says.
 
 - Tom Boutell, tom@punkave.com
 

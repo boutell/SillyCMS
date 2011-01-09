@@ -1,2 +1,4 @@
+Security:
+    resource: SecurityBundle/Resources/config/routing.yml
 SillyCMS:
     resource: SillyCMSBundle/Resources/config/routing.yml

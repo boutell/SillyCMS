@@ -25,6 +25,11 @@ class PageController extends Controller
       }
     }
     
+    protected function getParam($p, $d = null)
+    {
+      return $this->get('request')->get($p, $d);
+    }
+    
     protected function getForm()
     {
       $form = new Form('page', $this->page, $this->get('validator'));
@@ -47,13 +52,13 @@ class PageController extends Controller
     
     public function showAction($slug)
     {
-        $this->pre($slug);
+        $this->pre($this->getParam('slug'));
         return $this->render('SillyCMSBundle:Page:show.twig', array('title' => $this->page->getTitle(), 'slug' => $this->page->getSlug(), 'body' => $this->page->getBody()));
     }
     
     public function editAction()
     {
-        $slug = $this->get('request')->get('slug');
+        $slug = $this->getParam('slug');
         $this->pre($slug);
         $form = $this->getForm();
         return $this->render('SillyCMSBundle:Page:edit.twig', array('form' => $form, 'slug' => $slug));
@@ -61,7 +66,7 @@ class PageController extends Controller
     
     public function saveAction()
     {
-        $slug = $this->get('request')->get('slug');
+        $slug = $this->getParam('slug');
         $this->pre($slug);
         $form = $this->getForm();
 

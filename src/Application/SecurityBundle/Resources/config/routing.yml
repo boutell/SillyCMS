@@ -1,0 +1,10 @@
+security_login:
+    pattern:  /login
+    defaults:
+      _controller: SecurityBundle:Security:login
+      
+security_check:
+    pattern:  /login_check
+    
+security_logout:
+    pattern:  /logout

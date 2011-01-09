@@ -10,6 +10,36 @@ app.config:
         lifetime:       3600
         auto_start:     true
 
+security.config:
+    # There must be an "encoder" for every user class. All user classes extend
+    # AccountInterface. I'm using in-memory users so I'm not sure why I really need
+    # an encoder. I think this is what is done to the password before it is compared
+    # to the setting under "providers" below, so in principle I could have a hashed
+    # password in this config file.
+    encoders:
+        Symfony\Component\Security\User\AccountInterface: plaintext
+    providers:
+        main:
+            users:
+                admin: { password: demo, roles: ROLE_ADMIN }
+    firewalls:
+        main:
+            pattern:    /admin/.*
+            form-login: true
+        # Without this the form login listener has no chance to
+        # intercept this URL and let the user log in.
+        login_check:
+            pattern:    /login_check
+            form-login: true
+        # Same issue, plus we want the logout listener
+        logout:
+            pattern:    /logout
+            form-login: true
+            logout:     true
+        public:
+            pattern:    /.*
+            security:   false
+                    
 # Twig Configuration
 twig.config:
     debug:            %kernel.debug%
