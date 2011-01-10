@@ -8,10 +8,6 @@ save:
     defaults:
       _controller: SillyCMSBundle:Page:save
     
-showHome:
-    pattern:  /
-    defaults: { _controller: SillyCMSBundle:Page:show, slug: '' }
-
 show:
     pattern:  /:slug
     defaults: { _controller: SillyCMSBundle:Page:show }

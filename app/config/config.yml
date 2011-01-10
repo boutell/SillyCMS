@@ -28,7 +28,7 @@ security.config:
         - { path: /.*, role: IS_AUTHENTICATED_ANONYMOUSLY }
     firewalls:
         main:
-            pattern:    /.*
+            pattern:    ^.*$
             form-login: true
             anonymous: true
             logout: true
