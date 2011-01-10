@@ -10,6 +10,11 @@ body
 	margin: auto;
 }
 
+.login
+{
+	float: right;
+}
+
 .heading
 {
 	height: 80px;
@@ -84,4 +89,18 @@ form textarea
 .heading a:hover
 {
 	text-decoration: underline;
+}
+
+.button
+{
+	background-color: #8f8;
+	padding: 4px;
+	border: 1px solid black;
+	color: black;
+	text-decoration: none;
+}
+
+.controls
+{
+	padding-bottom: 16px;
 }

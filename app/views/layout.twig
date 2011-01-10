@@ -8,8 +8,11 @@
     </head>
     <body>
         <div class="page">
+            <div class="login">
+              {% render "SecurityBundle:Security:status" %}
+            </div>
             <div class="heading">
-                <h1>{{ block('title') }}</h1>
+                <h1>{{ block('title') }} </h1>
             </div>
             <div class="nav">
                 {% render "SillyCMSBundle:Page:index" %}
@@ -19,10 +22,6 @@
             </div>
             <div class="footer">
                 <a href="https://github.com/boutell/SillyCMS">SillyCMS</a> is a <a href="http://www.symfony-reloaded.org/">Symfony 2</a> demo.
-                {# Doesn't work, complains that ifrole is not available even though it's in the docs #}
-                {# ifrole "IS_AUTHENTICATED_FULLY" #}
-                    {# <a href="{{ _path('logout') }}">Logout</a> #}
-                {# endifrole #}
             </div>
         </div>
     </body>

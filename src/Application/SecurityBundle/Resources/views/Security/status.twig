@@ -1,0 +1,5 @@
+{% if security.vote('IS_AUTHENTICATED_FULLY') %}
+  Logged in as {{ security.user }} <a class="button" href="{{ path('security_logout') }}">Log Out</a>
+{% else %}
+  <a class="button" href="{{ path('security_login') }}">Log In</a>
+{% endif %}

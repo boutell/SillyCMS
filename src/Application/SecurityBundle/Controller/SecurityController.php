@@ -24,4 +24,9 @@ class SecurityController extends Controller
             'error'         => $error,
         ));
     }
+    
+    public function statusAction()
+    {
+        return $this->render('SecurityBundle:Security:status.twig', array('security' => $this->get('security.context')));
+    }
 }

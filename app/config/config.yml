@@ -22,23 +22,16 @@ security.config:
         main:
             users:
                 admin: { password: demo, roles: ROLE_ADMIN }
+    # Require a proper login for /admin actions, only an anonymous user to browse
+    access_control:
+        - { path: /admin/.*, role: ROLE_ADMIN }
+        - { path: /.*, role: IS_AUTHENTICATED_ANONYMOUSLY }
     firewalls:
         main:
-            pattern:    /admin/.*
-            form-login: true
-        # Without this the form login listener has no chance to
-        # intercept this URL and let the user log in.
-        login_check:
-            pattern:    /login_check
-            form-login: true
-        # Same issue, plus we want the logout listener
-        logout:
-            pattern:    /logout
-            form-login: true
-            logout:     true
-        public:
             pattern:    /.*
-            security:   false
+            form-login: true
+            anonymous: true
+            logout: true
                     
 # Twig Configuration
 twig.config:
