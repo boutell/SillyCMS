@@ -22,7 +22,6 @@ namespace Doctrine\ORM\Mapping\Driver;
 use Doctrine\Common\Cache\ArrayCache,
     Doctrine\Common\Annotations\AnnotationReader,
     Doctrine\DBAL\Schema\AbstractSchemaManager,
-    Doctrine\DBAL\Schema\SchemaException,
     Doctrine\ORM\Mapping\ClassMetadataInfo,
     Doctrine\ORM\Mapping\MappingException,
     Doctrine\Common\Util\Inflector;
@@ -129,11 +128,6 @@ class DatabaseDriver implements Driver
 
         $columns = $this->tables[$tableName]->getColumns();
         $indexes = $this->tables[$tableName]->getIndexes();
-        try {
-            $primaryKeyColumns = $this->tables[$tableName]->getPrimaryKey()->getColumns();
-        } catch(SchemaException $e) {
-            $primaryKeyColumns = array();
-        }
         
         if ($this->_sm->getDatabasePlatform()->supportsForeignKeyConstraints()) {
             $foreignKeys = $this->tables[$tableName]->getForeignKeys();
@@ -150,7 +144,7 @@ class DatabaseDriver implements Driver
         $fieldMappings = array();
         foreach ($columns as $column) {
             $fieldMapping = array();
-            if ($primaryKeyColumns && in_array($column->getName(), $primaryKeyColumns)) {
+            if (isset($indexes['primary']) && in_array($column->getName(), $indexes['primary']->getColumns())) {
                 $fieldMapping['id'] = true;
             } else if (in_array($column->getName(), $allForeignKeyColumns)) {
                 continue;

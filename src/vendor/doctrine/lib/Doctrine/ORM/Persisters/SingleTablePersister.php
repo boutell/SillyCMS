@@ -63,10 +63,12 @@ class SingleTablePersister extends AbstractEntityInheritancePersister
             foreach ($subClass->associationMappings as $assoc) {
                 if ($assoc['isOwningSide'] && $assoc['type'] & ClassMetadata::TO_ONE && ! isset($assoc['inherited'])) {
                     foreach ($assoc['targetToSourceKeyColumns'] as $srcColumn) {
-                        if ($columnList != '') $columnList .= ', ';
-                        $columnList .= $this->getSelectJoinColumnSQL($tableAlias, $srcColumn,
-                            isset($assoc['inherited']) ? $assoc['inherited'] : $this->_class->name
-                        );
+                        $columnAlias = $srcColumn . $this->_sqlAliasCounter++;
+                        $columnList .= ', ' . $tableAlias . ".$srcColumn AS $columnAlias";
+                        $resultColumnName = $this->_platform->getSQLResultCasing($columnAlias);
+                        if ( ! isset($this->_resultColumnNames[$resultColumnName])) {
+                            $this->_resultColumnNames[$resultColumnName] = $srcColumn;
+                        }
                     }
                 }
             }

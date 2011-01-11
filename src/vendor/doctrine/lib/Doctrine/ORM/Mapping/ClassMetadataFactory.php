@@ -284,6 +284,10 @@ class ClassMetadataFactory
                 throw MappingException::reflectionFailure($className, $e);
             }
 
+            // Verify & complete identifier mapping
+            if ( ! $class->identifier && ! $class->isMappedSuperclass) {
+                throw MappingException::identifierRequired($className);
+            }
             if ($parent && ! $parent->isMappedSuperclass) {
                 if ($parent->isIdGeneratorSequence()) {
                     $class->setSequenceGeneratorDefinition($parent->sequenceGeneratorDefinition);
@@ -309,11 +313,6 @@ class ClassMetadataFactory
             if ($this->evm->hasListeners(Events::loadClassMetadata)) {
                 $eventArgs = new \Doctrine\ORM\Event\LoadClassMetadataEventArgs($class, $this->em);
                 $this->evm->dispatchEvent(Events::loadClassMetadata, $eventArgs);
-            }
-
-            // Verify & complete identifier mapping
-            if ( ! $class->identifier && ! $class->isMappedSuperclass) {
-                throw MappingException::identifierRequired($className);
             }
 
             // verify inheritance
@@ -383,9 +382,6 @@ class ClassMetadataFactory
     {
         foreach ($parentClass->associationMappings as $field => $mapping) {
             if ($parentClass->isMappedSuperclass) {
-                if ($mapping['type'] & ClassMetadata::TO_MANY && !$mapping['isOwningSide']) {
-                    throw MappingException::illegalToManyAssocationOnMappedSuperclass($parentClass->name, $field);
-                }
                 $mapping['sourceEntity'] = $subClass->name;
             }
 
