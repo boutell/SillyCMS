@@ -56,3 +56,11 @@ doctrine.orm:
 #    host:       smtp.gmail.com
 #    username:   xxxxxxxx
 #    password:   xxxxxxxx
+
+# Custom services
+
+services:
+  twig.extension.WikiText:
+       class: Application\SillyCMSBundle\Twig\Extensions\WikiText
+       tags:
+           - { name: twig.extension }

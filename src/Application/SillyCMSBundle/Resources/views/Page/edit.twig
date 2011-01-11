@@ -8,5 +8,14 @@
 	    {{ form_field(form) }}
 	    <input type="submit" value="Save" class="submit" />
 	</form>
+	<div class="help">
+		Supports basic Wiki syntax. Newlines break the line, URLs become links, and you can create
+		headings with:
+<pre>
+= Heading =
+== Lesser Heading ==
+</pre>
+  	Down to fourth level headings.
+		</div>
 {% endblock %}
 

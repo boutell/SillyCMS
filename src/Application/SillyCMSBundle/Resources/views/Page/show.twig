@@ -8,5 +8,5 @@
 			<a class="button" href="{{ path('edit', { 'slug': slug }) }}">Edit</a>
 		</div>
 	{%endif %}
-	{{body}}
+	{{body|wiki_text}}
 {% endblock %}

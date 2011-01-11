@@ -11,4 +11,4 @@ save:
 show:
     pattern:  /:slug
     defaults: { _controller: SillyCMSBundle:Page:show }
-    requirements: { slug: .* }
+    requirements: { slug: ^.*$ }
