@@ -379,12 +379,17 @@ class ContainerBuilder extends Container implements TaggedContainerInterface
      * Sets an alias for an existing service.
      *
      * @param string $alias The alias to create
-     * @param string $id    The service to alias
+     * @param mixed  $id    The service to alias
      */
     public function setAlias($alias, $id)
     {
         $alias = strtolower($alias);
-        $id = strtolower($id);
+
+        if (is_string($id)) {
+            $id = new Alias($id);
+        } else if (!$id instanceof Alias) {
+            throw new \InvalidArgumentException('$id must be a string, or an Alias object.');
+        }
 
         unset($this->definitions[$alias]);
 
@@ -410,7 +415,7 @@ class ContainerBuilder extends Container implements TaggedContainerInterface
      */
     public function hasAlias($id)
     {
-        return array_key_exists(strtolower($id), $this->aliases);
+        return isset($this->aliases[strtolower($id)]);
     }
 
     /**
@@ -443,13 +448,11 @@ class ContainerBuilder extends Container implements TaggedContainerInterface
         return $this->aliases[$id];
     }
 
-    public function addInterfaceInjectors(array $injectors)
-    {
-        foreach ($injectors as $injector) {
-            $this->addInterfaceInjector($injector);
-        }
-    }
-
+    /**
+     * Adds an InterfaceInjector.
+     *
+     * @param InterfaceInjector $injector
+     */
     public function addInterfaceInjector(InterfaceInjector $injector)
     {
         $class = $injector->getClass();
@@ -460,6 +463,26 @@ class ContainerBuilder extends Container implements TaggedContainerInterface
         $this->injectors[$class] = $injector;
     }
 
+    /**
+     * Adds multiple InterfaceInjectors.
+     *
+     * @param array $injectors An array of InterfaceInjectors
+     */
+    public function addInterfaceInjectors(array $injectors)
+    {
+        foreach ($injectors as $injector) {
+            $this->addInterfaceInjector($injector);
+        }
+    }
+
+    /**
+     * Gets defined InterfaceInjectors.  If a service is provided, only that
+     * support the service will be returned.
+     *
+     * @param string $service If provided, only injectors supporting this service will be returned
+     *
+     * @return array An array of InterfaceInjectors
+     */
     public function getInterfaceInjectors($service = null)
     {
         if (null === $service) {
@@ -471,6 +494,23 @@ class ContainerBuilder extends Container implements TaggedContainerInterface
         });
     }
 
+    /**
+     * Returns true if an InterfaceInjector is defined for the class.
+     *
+     * @param string $class The class
+     *
+     * @return boolean true if at least one InterfaceInjector is defined, false otherwise
+     */
+    public function hasInterfaceInjectorForClass($class)
+    {
+        return array_key_exists($class, $this->injectors);
+    }
+
+    /**
+     * Sets the defined InterfaceInjectors.
+     *
+     * @param array $injectors An array of InterfaceInjectors indexed by class names
+     */
     public function setInterfaceInjectors(array $injectors)
     {
         $this->injectors = $injectors;
@@ -594,7 +634,7 @@ class ContainerBuilder extends Container implements TaggedContainerInterface
         $id = strtolower($id);
 
         if ($this->hasAlias($id)) {
-            return $this->findDefinition($this->getAlias($id));
+            return $this->findDefinition((string) $this->getAlias($id));
         }
 
         return $this->getDefinition($id);

@@ -4,6 +4,7 @@ namespace Symfony\Bundle\TwigBundle\Renderer;
 
 use Symfony\Component\Templating\Renderer\Renderer as BaseRenderer;
 use Symfony\Component\Templating\Storage\Storage;
+use Symfony\Component\Templating\Engine;
 
 /*
  * This file is part of the Symfony package.
@@ -28,6 +29,24 @@ class Renderer extends BaseRenderer
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function setEngine(Engine $engine)
+    {
+        parent::setEngine($engine);
+
+        $container = $engine->getContainer();
+        if ($container->has('security.context')) {
+            $security = $container->get('security.context');
+            $this->environment->addGlobal('security', $security);
+
+            if ($user = $security->getUser()) {
+                $this->environment->addGlobal('user', $user);
+            }
+        }
+    }
+
+    /**
      * Evaluates a template.
      *
      * @param Storage $template   The template to render
@@ -37,9 +56,10 @@ class Renderer extends BaseRenderer
      */
     public function evaluate(Storage $template, array $parameters = array())
     {
-        if ($this->engine->getContainer()->has('request')) {
-            // cannot be set in the constructor as we need the current request
-            $request = $this->engine->getContainer()->get('request');
+        $container = $this->engine->getContainer();
+
+        // cannot be set in the constructor as we need the current request
+        if ($container->has('request') && ($request = $container->get('request'))) {
             $this->environment->addGlobal('request', $request);
             $this->environment->addGlobal('session', $request->getSession());
         }

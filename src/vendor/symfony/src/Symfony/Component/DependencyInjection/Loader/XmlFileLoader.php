@@ -2,6 +2,8 @@
 
 namespace Symfony\Component\DependencyInjection\Loader;
 
+use Symfony\Component\DependencyInjection\Alias;
+
 use Symfony\Component\DependencyInjection\InterfaceInjector;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
@@ -124,7 +126,11 @@ class XmlFileLoader extends FileLoader
     protected function parseDefinition($id, $service, $file)
     {
         if ((string) $service['alias']) {
-            $this->container->setAlias($id, (string) $service['alias']);
+            $public = true;
+            if (isset($service['public'])) {
+                $public = $service->getAttributeAsPhp('public');
+            }
+            $this->container->setAlias($id, new Alias((string) $service['alias'], $public));
 
             return;
         }
@@ -275,9 +281,18 @@ class XmlFileLoader extends FileLoader
             }
         }
 
+        $tmpfiles = array();
         $imports = '';
         foreach ($schemaLocations as $namespace => $location) {
             $parts = explode('/', $location);
+            if (preg_match('#^phar://#i', $location)) {
+                $tmpfile = tempnam(sys_get_temp_dir(), 'sf2');
+                if ($tmpfile) {
+                    file_put_contents($tmpfile, file_get_contents($location));
+                    $tmpfiles[] = $tmpfile;
+                    $parts = explode('/', str_replace('\\', '/', $tmpfile));
+                }
+            }
             $drive = '\\' === DIRECTORY_SEPARATOR ? array_shift($parts).'/' : '';
             $location = 'file:///'.$drive.implode('/', array_map('rawurlencode', $parts));
 
@@ -298,7 +313,11 @@ EOF
         ;
 
         $current = libxml_use_internal_errors(true);
-        if (!$dom->schemaValidateSource($source)) {
+        $valid = $dom->schemaValidateSource($source);
+        foreach ($tmpfiles as $tmpfile) {
+            @unlink($tmpfile);
+        }
+        if (!$valid) {
             throw new \InvalidArgumentException(implode("\n", $this->getXmlErrors()));
         }
         libxml_use_internal_errors($current);

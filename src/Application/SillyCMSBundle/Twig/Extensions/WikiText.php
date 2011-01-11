@@ -28,7 +28,6 @@ class WikiText extends Twig_Extension
     public function getFilters()
     {
         return array(
-            // What does needs_environment do exactly?
             'wiki_text' => new Twig_Filter_Function('\Application\SillyCMSBundle\Twig\Extensions\twig_wikitext_filter', array('is_safe' => array('html'), 'pre_escape' => 'html'))
         );
     }
