@@ -132,7 +132,9 @@ class Twig_Lexer implements Twig_LexerInterface
 
         // push the template text first
         $text = substr($this->code, $this->cursor, $pos - $this->cursor);
-        $this->pushToken(Twig_Token::TEXT_TYPE, $text);
+        if (!empty($text)) {
+            $this->pushToken(Twig_Token::TEXT_TYPE, $text);
+        }
         $this->moveCursor($text.$token);
 
         switch ($token) {
@@ -258,8 +260,7 @@ class Twig_Lexer implements Twig_LexerInterface
         }
     }
 
-    protected function pushToken($type, $value = '')
-    {
+    protected function pushToken($type, $value = '') {
         // do not push empty text tokens
         if (Twig_Token::TEXT_TYPE === $type && '' === $value) {
             return;

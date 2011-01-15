@@ -30,9 +30,8 @@ class AddTemplatingRenderersPass implements CompilerPassInterface
 
         $definition = $container->getDefinition('templating.engine');
         $arguments = $definition->getArguments();
+        $arguments[2] = $renderers;
         $definition->setArguments($arguments);
-
-        $definition->addMethodCall('setRenderers', array($renderers));
 
         if (count($helpers) > 0) {
             $definition->addMethodCall('setHelpers', array($helpers));

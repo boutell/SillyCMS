@@ -2,8 +2,6 @@
 
 namespace Symfony\Component\DependencyInjection\Loader;
 
-use Symfony\Component\DependencyInjection\Alias;
-
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\InterfaceInjector;
 use Symfony\Component\DependencyInjection\Definition;
@@ -129,11 +127,6 @@ class YamlFileLoader extends FileLoader
     {
         if (is_string($service) && 0 === strpos($service, '@')) {
             $this->container->setAlias($id, substr($service, 1));
-
-            return;
-        } else if (isset($service['alias'])) {
-            $public = !array_key_exists('public', $service) || (Boolean) $service['public'];
-            $this->container->setAlias($id, new Alias($service['alias'], $public));
 
             return;
         }

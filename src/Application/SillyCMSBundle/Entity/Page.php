@@ -16,6 +16,7 @@ class Page
    protected $id;
    /**
     * @orm:Column(type="string", length="100")
+    * @validation:NotBlank()
     */
    protected $title;
    /**

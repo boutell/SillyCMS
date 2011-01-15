@@ -17,7 +17,7 @@
  */
 class Twig_Environment
 {
-    const VERSION = '1.0.0-RC2';
+    const VERSION = '1.0.0-BETA1';
 
     protected $charset;
     protected $loader;
@@ -41,8 +41,6 @@ class Twig_Environment
     protected $unaryOperators;
     protected $binaryOperators;
     protected $templateClassPrefix = '__TwigTemplate_';
-    protected $functionCallbacks;
-    protected $filterCallbacks;
 
     /**
      * Constructor.
@@ -106,8 +104,6 @@ class Twig_Environment
         $this->strictVariables    = (bool) $options['strict_variables'];
         $this->runtimeInitialized = false;
         $this->setCache($options['cache']);
-        $this->functionCallbacks = array();
-        $this->filterCallbacks = array();
     }
 
     /**
@@ -244,7 +240,7 @@ class Twig_Environment
 
         $class = substr($this->getTemplateClass($name), strlen($this->templateClassPrefix));
 
-        return $this->getCache().'/'.substr($class, 0, 2).'/'.substr($class, 2, 2).'/'.substr($class, 4).'.php';
+        return $this->getCache().'/'.substr($class, 0, 2).'/'.substr($class, 2, 4).'/'.substr($class, 4).'.php';
     }
 
     /**
@@ -651,44 +647,10 @@ class Twig_Environment
     public function addFilter($name, Twig_FilterInterface $filter)
     {
         if (null === $this->filters) {
-            $this->loadFilters();
+            $this->getFilters();
         }
 
         $this->filters[$name] = $filter;
-    }
-
-    /**
-     * Get a filter by name.
-     *
-     * Subclasses may override this method and load filters differently;
-     * so no list of filters is available.
-     *
-     * @param string $name The filter name
-     *
-     * @return Twig_Filter|false A Twig_Filter instance or false if the filter does not exists
-     */
-    public function getFilter($name)
-    {
-        if (null === $this->filters) {
-            $this->loadFilters();
-        }
-
-        if (isset($this->filters[$name])) {
-            return $this->filters[$name];
-        }
-
-        foreach ($this->filterCallbacks as $callback) {
-            if (false !== $filter = call_user_func($callback, $name)) {
-                return $filter;
-            }
-        }
-
-        return false;
-    }
-
-    public function registerUndefinedFilterCallback($callable)
-    {
-        $this->filterCallbacks[] = $callable;
     }
 
     /**
@@ -696,12 +658,16 @@ class Twig_Environment
      *
      * @return Twig_FilterInterface[] An array of Twig_FilterInterface instances
      */
-    protected function loadFilters()
+    public function getFilters()
     {
-        $this->filters = array();
-        foreach ($this->getExtensions() as $extension) {
-            $this->filters = array_merge($this->filters, $extension->getFilters());
+        if (null === $this->filters) {
+            $this->filters = array();
+            foreach ($this->getExtensions() as $extension) {
+                $this->filters = array_merge($this->filters, $extension->getFilters());
+            }
         }
+
+        return $this->filters;
     }
 
     /**
@@ -747,19 +713,18 @@ class Twig_Environment
         if (null === $this->functions) {
             $this->loadFunctions();
         }
-
         $this->functions[$name] = $function;
     }
 
     /**
      * Get a function by name.
      *
-     * Subclasses may override this method and load functions differently;
+     * Subclasses may override getFunction($name) and load functions differently;
      * so no list of functions is available.
      *
      * @param string $name function name
      *
-     * @return Twig_Function|false A Twig_Function instance or false if the function does not exists
+     * @return Twig_Function|null A Twig_Function instance or null if the function does not exists
      */
     public function getFunction($name)
     {
@@ -771,18 +736,7 @@ class Twig_Environment
             return $this->functions[$name];
         }
 
-        foreach ($this->functionCallbacks as $callback) {
-            if (false !== $function = call_user_func($callback, $name)) {
-                return $function;
-            }
-        }
-
-        return false;
-    }
-
-    public function registerUndefinedFunctionCallback($callable)
-    {
-        $this->functionCallbacks[] = $callable;
+        return null;
     }
 
     protected function loadFunctions() {

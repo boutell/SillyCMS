@@ -42,8 +42,7 @@ class RendererTest extends TestCase
         $environment = $this->getTwigEnvironment();
         $renderer = new Renderer($environment);
 
-        $container = new Container();
-        $engine = new Engine($container, $this->getMock('Symfony\Component\Templating\Loader\LoaderInterface'), array());
+        $engine = new Engine(new Container(), $this->getMock('Symfony\Component\Templating\Loader\LoaderInterface'), array());
 
         $storage = $this->getStorage();
         $template = $this->getMock('\Twig_TemplateInterface');
@@ -53,7 +52,6 @@ class RendererTest extends TestCase
             ->with($storage)
             ->will($this->returnValue($template));
 
-        $container->set('request', null);
         $renderer->setEngine($engine);
         $renderer->evaluate($storage);
 
