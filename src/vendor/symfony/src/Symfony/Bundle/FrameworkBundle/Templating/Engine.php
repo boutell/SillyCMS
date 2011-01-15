@@ -32,11 +32,11 @@ class Engine extends BaseEngine
      * @param LoaderInterface    $loader    A loader instance
      * @param array              $renderers All templating renderers
      */
-    public function __construct(ContainerInterface $container, LoaderInterface $loader)
+    public function __construct(ContainerInterface $container, LoaderInterface $loader, array $renderers)
     {
         $this->container = $container;
 
-        parent::__construct($loader);
+        parent::__construct($loader, $renderers);
     }
 
     public function getContainer()

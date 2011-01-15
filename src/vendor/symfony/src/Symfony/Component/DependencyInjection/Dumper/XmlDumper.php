@@ -138,10 +138,7 @@ class XmlDumper extends Dumper
 
     protected function addServiceAlias($alias, $id)
     {
-        if ($id->isPublic()) {
-            return sprintf("    <service id=\"%s\" alias=\"%s\" />\n", $alias, $id);
-        }
-        return sprintf("    <service id=\"%s\" alias=\"%s\" public=\"false\" />\n", $alias, $id);
+        return sprintf("    <service id=\"%s\" alias=\"%s\" />\n", $alias, $id);
     }
 
     protected function addServices()

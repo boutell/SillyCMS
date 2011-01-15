@@ -2,7 +2,6 @@
 
 namespace Symfony\Bundle\FrameworkBundle\DependencyInjection;
 
-use Symfony\Component\DependencyInjection\Alias;
 use Symfony\Component\DependencyInjection\Parameter;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
@@ -444,7 +443,7 @@ class SecurityExtension extends Extension
 
         // Existing DAO service provider
         if (isset($provider['id'])) {
-            $container->setAlias($name, new Alias($provider['id'], false));
+            $container->setAlias($name, $provider['id']);
 
             return $provider['id'];
         }
