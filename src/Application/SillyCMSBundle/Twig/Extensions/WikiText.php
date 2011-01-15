@@ -14,12 +14,34 @@
  */
   
 namespace Application\SillyCMSBundle\Twig\Extensions;
-use \Twig_Filter_Function;
+use \Twig_Filter_Method;
 use \Twig_Environment;
 use \Twig_Extension;
 
 class WikiText extends Twig_Extension
 {
+
+    protected $container;
+
+    public function __construct($container)
+    {
+        $this->container = $container;
+    }
+
+    public function getContainer()
+    {
+        return $this->container;
+    }
+
+    /**
+     *
+     * @return Symfony\Component\Routing\Router $router
+     */
+    public function getRouter()
+    {
+        return $this->container->get('router');
+    }
+
     /**
      * Returns a list of filters.
      *
@@ -28,7 +50,7 @@ class WikiText extends Twig_Extension
     public function getFilters()
     {
         return array(
-            'wiki_text' => new Twig_Filter_Function('\Application\SillyCMSBundle\Twig\Extensions\twig_wikitext_filter', array('is_safe' => array('html'), 'pre_escape' => 'html'))
+            'wiki_text' => new Twig_Filter_Method($this, 'twig_wikitext_filter', array('is_safe' => array('html'), 'pre_escape' => 'html'))
         );
     }
 
@@ -41,31 +63,45 @@ class WikiText extends Twig_Extension
     {
         return 'WikiText';
     }
+
+    public function twig_wikitext_filter($text)
+    {
+        // Multiline regexp won't work with \r in there unless
+        // autodetect is set, if that even works
+        $text = str_replace("\r\n", "\n", $text);
+        $text = preg_replace(
+        array(
+            "/(http\:.*?)([\s\]\)\}]|$)/",
+            "/^= (.*?) =$/m",
+            "/^== (.*?) ==$/m",
+            "/^=== (.*?) ===$/m",
+            "/^==== (.*?) ====$/m",
+        ),
+        array(
+            "<a href=\"$1\">$1</a>$2",
+            "<h2>$1</h2>",
+            "<h3>$1</h3>",
+            "<h4>$1</h4>",
+            "<h5>$1</h5>"
+        ),
+        $text);
+
+        //PHP 5.3 rocks so we can use anonymous function goodness even though it is overkill
+        $router = $this->getRouter();
+        $text = \preg_replace_callback("/\[\[(.*?)\]\]/m", function($match) use ($router) {
+            $name = $match[1];
+            
+            return '<a href="'.$router->generate('show', array('slug' => $name))."\">$name</a>";
+
+        }, $text);
+
+        $text = str_replace("\n", "<br />\n", $text);
+        // But web convention is \r\n
+        $text = str_replace("\n", "\r\n", $text);
+        
+        return $text;
+    }
+
 }
 
-function twig_wikitext_filter($text)
-{
-    // Multiline regexp won't work with \r in there unless
-    // autodetect is set, if that even works
-    $text = str_replace("\r\n", "\n", $text);
-    $text = preg_replace(
-      array(
-        "/(http\:.*?)([\s\]\)\}]|$)/",
-        "/^= (.*?) =$/m",
-        "/^== (.*?) ==$/m",
-        "/^=== (.*?) ===$/m",
-        "/^==== (.*?) ====$/m",
-      ),
-      array(
-        "<a href=\"$1\">$1</a>$2", 
-        "<h2>$1</h2>",
-        "<h3>$1</h3>",
-        "<h4>$1</h4>",
-        "<h5>$1</h5>"
-      ), 
-      $text);
-    $text = str_replace("\n", "<br />\n", $text);
-    // But web convention is \r\n
-    $text = str_replace("\n", "\r\n", $text);
-    return $text;
-}
+

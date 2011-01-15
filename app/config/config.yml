@@ -64,3 +64,9 @@ services:
        class: Application\SillyCMSBundle\Twig\Extensions\WikiText
        tags:
            - { name: twig.extension }
+       service: service_container
+       service_container: service
+       argument:
+         service_container: service
+       arguments:
+         - @service_container
