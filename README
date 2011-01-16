@@ -14,7 +14,7 @@ Make sure the web folder is document root and visit the site:
 
 http://sillycms/app_dev.php
 
-The home page doesn't exist yet so click Edit and provide some content.
+The home page doesn't exist yet so log in, click Edit and provide some content.
 
 Now access another page:
 
@@ -23,6 +23,19 @@ http://sillycms/app_dev.php/coolbeans
 And provide content for that page.
 
 Notice that both pages now appear in the navigation list at the left.
+
+A simple Wiki syntax is supported. You can create headings:
+
+= Heading =
+== Lesser Heading ==
+=== Even Lesser Heading ===
+
+URLs are automatically transformed into links, and you can create convenient links
+to other Wiki pages by putting their titles in double brackets:
+
+[[title]]
+
+This demonstrates our success in registering a Twig filter as a Symfony bundle.
 
 MAKE SURE YOUR PHP HAS THE intl EXTENSION if you get errors
 about a missing Locale class. For instance, for MacPorts:
@@ -35,16 +48,7 @@ recently modified, which would be my .yml files.
 
 TODO
 
-* Figure out the right place to add some kind of Wiki formatting rules to
-the code - is there any way to get the equivalent of the old simple_format_text helper
-in Twig-land?
-
-* Add multiuser security using Doctrine objects and not just an in-memory user provider
-
-* Add login and logout buttons, and show edit buttons depending on whether the user is
-already logged in or not. Right now Symfony 2 appears to have no access to the user login
-status on pages that don't absolutely require login, which is problematic, but let's see
-what Fabien says.
+* Add multiuser security using Doctrine objects and Symfony 2 ACLs; go beyond the in-memory user provider
 
 - Tom Boutell, tom@punkave.com
 
