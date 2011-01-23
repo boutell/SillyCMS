@@ -55,7 +55,7 @@ abstract class AbstractDoctrineExtension extends Extension
 
             foreach ($objectManager['mappings'] as $mappingName => $mappingConfig) {
                 if (is_string($mappingConfig)) {
-                    $mappingConfig['type'] = $mappingConfig;
+                    $mappingConfig = array('type' => $mappingConfig);
                 }
                 if (!isset($mappingConfig['dir'])) {
                     $mappingConfig['dir'] = false;
@@ -238,6 +238,7 @@ abstract class AbstractDoctrineExtension extends Extension
             $chainDriverDef = $container->getDefinition($this->getObjectManagerElementName($objectManager['name'] . '_metadata_driver'));
         } else {
             $chainDriverDef = new Definition('%'.$this->getObjectManagerElementName('metadata.driver_chain_class%'));
+            $chainDriverDef->setPublic(false);
         }
 
         foreach ($this->drivers as $driverType => $driverPaths) {
@@ -261,6 +262,7 @@ abstract class AbstractDoctrineExtension extends Extension
                     array_values($driverPaths)
                 ));
             }
+            $mappingDriverDef->setPublic(false);
 
             $container->setDefinition($mappingService, $mappingDriverDef);
 

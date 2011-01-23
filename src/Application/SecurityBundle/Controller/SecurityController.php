@@ -18,7 +18,7 @@ class SecurityController extends Controller
             $error = $this->get('request')->getSession()->get(SecurityContext::AUTHENTICATION_ERROR);
         }
 
-        return $this->render('SecurityBundle:Security:login.twig', array(
+        return $this->render('SecurityBundle:Security:login.twig.html', array(
             // last username entered by the user
             'last_username' => $this->get('request')->getSession()->get(SecurityContext::LAST_USERNAME),
             'error'         => $error,
@@ -27,6 +27,6 @@ class SecurityController extends Controller
     
     public function statusAction()
     {
-        return $this->render('SecurityBundle:Security:status.twig', array('security' => $this->get('security.context')));
+        return $this->render('SecurityBundle:Security:status.twig.html', array('security' => $this->get('security.context')));
     }
 }

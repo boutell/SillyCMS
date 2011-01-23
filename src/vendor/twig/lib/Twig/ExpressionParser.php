@@ -145,7 +145,7 @@ class Twig_ExpressionParser
                 } elseif ($token->test(Twig_Token::PUNCTUATION_TYPE, '{')) {
                     $node = $this->parseHashExpression();
                 } else {
-                    throw new Twig_Error_Syntax(sprintf('Unexpected token "%s" of value "%s"', Twig_Token::typeToEnglish($token->getType()), $token->getValue()), $token->getLine());
+                    throw new Twig_Error_Syntax(sprintf('Unexpected token "%s" of value "%s"', Twig_Token::typeToEnglish($token->getType(), $token->getLine()), $token->getValue()), $token->getLine());
                 }
         }
 
@@ -190,7 +190,8 @@ class Twig_ExpressionParser
             }
 
             if (!$stream->test(Twig_Token::STRING_TYPE) && !$stream->test(Twig_Token::NUMBER_TYPE)) {
-                throw new Twig_Error_Syntax(sprintf('A hash key must be a quoted string or a number (unexpected token "%s" of value "%s"', Twig_Token::typeToEnglish($stream->getCurrent()->getType()), $stream->getCurrent()->getValue()), $stream->getCurrent()->getLine());
+                $current = $stream->getCurrent();
+                throw new Twig_Error_Syntax(sprintf('A hash key must be a quoted string or a number (unexpected token "%s" of value "%s"', Twig_Token::typeToEnglish($current->getType(), $current->getLine()), $current->getValue()), $current->getLine());
             }
 
             $key = $stream->next()->getValue();
@@ -248,7 +249,7 @@ class Twig_ExpressionParser
         }
 
         if (null !== $alias = $this->parser->getImportedFunction($node->getAttribute('name'))) {
-            return new Twig_Node_Expression_GetAttr($alias['node'], new Twig_Node_Expression_Constant($alias['name'], $node->getLine()), $args, $node->getLine(), Twig_Node_Expression_GetAttr::TYPE_METHOD);
+            return new Twig_Node_Expression_GetAttr($alias['node'], new Twig_Node_Expression_Constant($alias['name'], $node->getLine()), $args, $node->getLine(), Twig_TemplateInterface::METHOD_CALL);
         }
 
         return new Twig_Node_Expression_Function($node, $args, $node->getLine());
@@ -259,7 +260,7 @@ class Twig_ExpressionParser
         $token = $this->parser->getStream()->next();
         $lineno = $token->getLine();
         $arguments = new Twig_Node();
-        $type = Twig_Node_Expression_GetAttr::TYPE_ANY;
+        $type = Twig_TemplateInterface::ANY_CALL;
         if ($token->getValue() == '.') {
             $token = $this->parser->getStream()->next();
             if (
@@ -272,7 +273,7 @@ class Twig_ExpressionParser
                 $arg = new Twig_Node_Expression_Constant($token->getValue(), $lineno);
 
                 if ($this->parser->getStream()->test(Twig_Token::PUNCTUATION_TYPE, '(')) {
-                    $type = Twig_Node_Expression_GetAttr::TYPE_METHOD;
+                    $type = Twig_TemplateInterface::METHOD_CALL;
                     $arguments = $this->parseArguments();
                 } else {
                     $arguments = new Twig_Node();
@@ -281,7 +282,7 @@ class Twig_ExpressionParser
                 throw new Twig_Error_Syntax('Expected name or number', $lineno);
             }
         } else {
-            $type = Twig_Node_Expression_GetAttr::TYPE_ARRAY;
+            $type = Twig_TemplateInterface::ARRAY_CALL;
 
             $arg = $this->parseExpression();
             $this->parser->getStream()->expect(Twig_Token::PUNCTUATION_TYPE, ']');
@@ -344,7 +345,7 @@ class Twig_ExpressionParser
         while (true) {
             $token = $this->parser->getStream()->expect(Twig_Token::NAME_TYPE, null, 'Only variables can be assigned to');
             if (in_array($token->getValue(), array('true', 'false', 'none'))) {
-                throw new Twig_Error_Syntax(sprintf('You cannot assign a value to "%s"', $token->getValue()));
+                throw new Twig_Error_Syntax(sprintf('You cannot assign a value to "%s"', $token->getValue()), $token->getLine());
             }
             $targets[] = new Twig_Node_Expression_AssignName($token->getValue(), $token->getLine());
 

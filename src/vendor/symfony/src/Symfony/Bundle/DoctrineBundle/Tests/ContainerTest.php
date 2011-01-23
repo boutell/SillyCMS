@@ -33,8 +33,18 @@ class ContainerTest extends TestCase
         )));
         $loader = new DoctrineExtension();
         $container->registerExtension($loader);
-        $loader->dbalLoad(array(), $container);
+        $loader->dbalLoad(array(
+            'connections' => array(
+                'default' => array(
+                    'driver' => 'pdo_mysql',
+                    'charset' => 'UTF-8',
+                    'platform-service' => 'my.platform',
+                )
+            )
+        ), $container);
         $loader->ormLoad(array('bundles' => array('YamlBundle' => array())), $container);
+
+        $container->setDefinition('my.platform', new \Symfony\Component\DependencyInjection\Definition('Doctrine\DBAL\Platforms\MySqlPlatform'));
 
         $dumper = new PhpDumper($container);
         $code = $dumper->dump(array('class' => 'DoctrineBundleTestsProjectServiceContainer'));
@@ -49,7 +59,7 @@ class ContainerTest extends TestCase
         $this->assertInstanceOf('Doctrine\DBAL\Logging\DebugStack', $container->get('doctrine.dbal.logger'));
         $this->assertInstanceOf('Symfony\Bundle\DoctrineBundle\DataCollector\DoctrineDataCollector', $container->get('doctrine.data_collector'));
         $this->assertInstanceOf('Doctrine\DBAL\Configuration', $container->get('doctrine.dbal.default_connection.configuration'));
-        $this->assertInstanceOf('Symfony\Bundle\DoctrineAbstractBundle\Event\EventManager', $container->get('doctrine.dbal.default_connection.event_manager'));
+        $this->assertInstanceOf('Doctrine\Common\EventManager', $container->get('doctrine.dbal.default_connection.event_manager'));
         $this->assertInstanceOf('Doctrine\DBAL\Connection', $container->get('doctrine.dbal.default_connection'));
         $this->assertInstanceOf('Doctrine\Common\Annotations\AnnotationReader', $container->get('doctrine.orm.metadata.annotation_reader'));
         $this->assertInstanceOf('Doctrine\ORM\Configuration', $container->get('doctrine.orm.default_configuration'));
@@ -60,7 +70,10 @@ class ContainerTest extends TestCase
         $this->assertInstanceOf('Doctrine\ORM\EntityManager', $container->get('doctrine.orm.default_entity_manager'));
         $this->assertInstanceOf('Doctrine\DBAL\Connection', $container->get('database_connection'));
         $this->assertInstanceOf('Doctrine\ORM\EntityManager', $container->get('doctrine.orm.entity_manager'));
-        $this->assertInstanceOf('Symfony\Bundle\DoctrineAbstractBundle\Event\EventManager', $container->get('doctrine.orm.default_entity_manager.event_manager'));
-        $this->assertInstanceOf('Symfony\Bundle\DoctrineAbstractBundle\Event\EventManager', $container->get('doctrine.dbal.event_manager'));
+        $this->assertInstanceOf('Doctrine\Common\EventManager', $container->get('doctrine.orm.default_entity_manager.event_manager'));
+        $this->assertInstanceOf('Doctrine\Common\EventManager', $container->get('doctrine.dbal.event_manager'));
+        $this->assertInstanceOf('Doctrine\DBAL\Event\Listeners\MysqlSessionInit', $container->get('doctrine.dbal.default_connection.events.mysqlsessioninit'));
+
+        $this->assertSame($container->get('my.platform'), $container->get('doctrine.dbal.default_connection')->getDatabasePlatform());
     }
 }

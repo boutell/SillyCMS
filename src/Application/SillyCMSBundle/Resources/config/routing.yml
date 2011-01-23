@@ -9,6 +9,6 @@ save:
       _controller: SillyCMSBundle:Page:save
     
 show:
-    pattern:  /:slug
+    pattern:  '/{slug}'
     defaults: { _controller: SillyCMSBundle:Page:show }
     requirements: { slug: ^.*$ }

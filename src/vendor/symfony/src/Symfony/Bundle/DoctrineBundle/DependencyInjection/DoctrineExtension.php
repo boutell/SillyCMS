@@ -2,6 +2,7 @@
 
 namespace Symfony\Bundle\DoctrineBundle\DependencyInjection;
 
+use Symfony\Component\DependencyInjection\Alias;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -57,7 +58,6 @@ class DoctrineExtension extends AbstractDoctrineExtension
     public function ormLoad($config, ContainerBuilder $container)
     {
         $this->loadOrmDefaults($config, $container);
-        $this->createOrmProxyDirectory($container);
         $this->loadOrmEntityManagers($config, $container);
     }
 
@@ -118,13 +118,18 @@ class DoctrineExtension extends AbstractDoctrineExtension
 
             $driverOptions = array();
             $driverDef = new Definition('Doctrine\DBAL\DriverManager');
-            $driverDef->setPublic(false);
             $driverDef->setFactoryMethod('getConnection');
             $container->setDefinition(sprintf('doctrine.dbal.%s_connection', $connection['name']), $driverDef);
         }
 
         if (isset($connection['driver'])) {
-            $driverOptions['driverClass'] = sprintf('Doctrine\\DBAL\\Driver\\%s\\Driver', $connection['driver']);
+            $driverOptions['driver'] = $connection['driver'];
+        }
+        if (isset($connection['driver-class'])) {
+            $driverOptions['driverClass'] = $connection['driver-class'];
+        }
+        if (isset($connection['driver_class'])) {
+            $driverOptions['driverClass'] = $connection['driver_class'];
         }
         if (isset($connection['wrapper-class'])) {
             $driverOptions['wrapperClass'] = $connection['wrapper-class'];
@@ -151,25 +156,35 @@ class DoctrineExtension extends AbstractDoctrineExtension
         $eventManagerId = sprintf('doctrine.dbal.%s_connection.event_manager', $eventManagerName);
         if (!$container->hasDefinition($eventManagerId)) {
             $eventManagerDef = new Definition('%doctrine.dbal.event_manager_class%');
-            $eventManagerDef->addMethodCall('loadTaggedEventListeners', array(
-                new Reference('service_container'),
-            ));
-            $eventManagerDef->addMethodCall('loadTaggedEventListeners', array(
-                new Reference('service_container'),
-                sprintf('doctrine.dbal.%s_event_listener', $eventManagerName),
-            ));
-            $eventManagerDef->addMethodCall('loadTaggedEventSubscribers', array(
-                new Reference('service_container'),
-            ));
-            $eventManagerDef->addMethodCall('loadTaggedEventSubscribers', array(
-                new Reference('service_container'),
-                sprintf('doctrine.dbal.%s_event_subscriber', $eventManagerName),
-            ));
+            $eventManagerDef->setPublic(false);
             $container->setDefinition($eventManagerId, $eventManagerDef);
         }
 
         if ($container->getParameter('doctrine.dbal.default_connection') == $connection['name']) {
-            $container->setAlias('doctrine.dbal.event_manager', sprintf('doctrine.dbal.%s_connection.event_manager', $connection['name']));
+            $container->setAlias('doctrine.dbal.event_manager', new Alias(sprintf('doctrine.dbal.%s_connection.event_manager', $connection['name']), false));
+        }
+
+        if (isset($driverOptions['charset'])) {
+            if ( (isset($driverOptions['driver']) && stripos($driverOptions['driver'], 'mysql') !== false) ||
+                 (isset($driverOptions['driverClass']) && stripos($driverOptions['driverClass'], 'mysql') !== false)) {
+                $mysqlSessionInit = new Definition('%doctrine.dbal.events.mysql_session_init.class%');
+                $mysqlSessionInit->setArguments(array($driverOptions['charset']));
+                $mysqlSessionInit->setPublic(false);
+                $mysqlSessionInit->addTag(sprintf('doctrine.dbal.%s_event_subscriber', $eventManagerName));
+
+                $container->setDefinition(
+                    sprintf('doctrine.dbal.%s_connection.events.mysqlsessioninit', $connection['name']),
+                    $mysqlSessionInit
+                );
+                unset($driverOptions['charset']);
+            }
+        }
+
+        if (isset($connection['platform-service'])) {
+            $driverOptions['platform'] = new Reference($connection['platform-service']);
+        }
+        if (isset($connection['platform_service'])) {
+            $driverOptions['platform'] = new Reference($connection['platform_service']);
         }
 
         $driverDef->setArguments(array(
@@ -189,7 +204,7 @@ class DoctrineExtension extends AbstractDoctrineExtension
     {
         $defaultConnectionName = $container->getParameter('doctrine.dbal.default_connection');
         $defaultConnection = array(
-            'driver'              => 'PDOMySql',
+            'driver'              => 'pdo_mysql',
             'user'                => 'root',
             'password'            => null,
             'host'                => 'localhost',
@@ -213,22 +228,6 @@ class DoctrineExtension extends AbstractDoctrineExtension
             $connections = array($defaultConnectionName => array_merge($defaultConnection, $config));
         }
         return $connections;
-    }
-
-    /**
-     * Create the Doctrine ORM Entity proxy directory
-     */
-    protected function createOrmProxyDirectory(ContainerBuilder $container)
-    {
-        $proxyCacheDir = $container->getParameterBag()->resolveValue($container->getParameter('doctrine.orm.proxy_dir'));
-        // Create entity proxy directory
-        if (!is_dir($proxyCacheDir)) {
-            if (false === @mkdir($proxyCacheDir, 0777, true)) {
-                throw new \RuntimeException(sprintf('Unable to create the Doctrine Proxy directory (%s)', dirname($proxyCacheDir)));
-            }
-        } elseif (!is_writable($proxyCacheDir) && $container->getParameter('auto_generate_proxy_classes') == true) {
-            throw new \RuntimeException(sprintf('Unable to write in the Doctrine Proxy directory (%s)', $proxyCacheDir));
-        }
     }
 
     /**
@@ -352,7 +351,7 @@ class DoctrineExtension extends AbstractDoctrineExtension
             }
             $container->setAlias(
                 sprintf('doctrine.orm.%s_entity_manager.event_manager', $entityManager['name']),
-                sprintf('doctrine.dbal.%s_connection.event_manager', $connectionName)
+                new Alias(sprintf('doctrine.dbal.%s_connection.event_manager', $connectionName), false)
             );
         }
     }

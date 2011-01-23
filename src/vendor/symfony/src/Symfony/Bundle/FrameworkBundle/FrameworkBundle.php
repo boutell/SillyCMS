@@ -3,13 +3,15 @@
 namespace Symfony\Bundle\FrameworkBundle;
 
 use Symfony\Bundle\FrameworkBundle\DependencyInjection\Compiler\AddConstraintValidatorsPass;
-use Symfony\Bundle\FrameworkBundle\DependencyInjection\Compiler\AddTemplatingRenderersPass;
+use Symfony\Bundle\FrameworkBundle\DependencyInjection\Compiler\TemplatingPass;
 use Symfony\Bundle\FrameworkBundle\DependencyInjection\Compiler\RegisterKernelListenersPass;
 use Symfony\Bundle\FrameworkBundle\DependencyInjection\Compiler\AddSecurityVotersPass;
 use Symfony\Bundle\FrameworkBundle\DependencyInjection\Compiler\ConverterManagerPass;
 use Symfony\Bundle\FrameworkBundle\DependencyInjection\Compiler\RoutingResolverPass;
 use Symfony\Bundle\FrameworkBundle\DependencyInjection\Compiler\ProfilerPass;
+use Symfony\Bundle\FrameworkBundle\DependencyInjection\Compiler\AddClassesToCachePass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\Form\FormConfiguration;
 
@@ -37,6 +39,9 @@ class FrameworkBundle extends Bundle
         if ($this->container->has('error_handler')) {
             $this->container->get('error_handler');
         }
+
+        FormConfiguration::clearDefaultCsrfSecrets();
+
         if ($this->container->hasParameter('csrf_secret')) {
             FormConfiguration::addDefaultCsrfSecret($this->container->getParameter('csrf_secret'));
             FormConfiguration::enableDefaultCsrfProtection();
@@ -64,7 +69,8 @@ class FrameworkBundle extends Bundle
         $container->addCompilerPass(new RoutingResolverPass());
         $container->addCompilerPass(new ProfilerPass());
         $container->addCompilerPass(new RegisterKernelListenersPass());
-        $container->addCompilerPass(new AddTemplatingRenderersPass());
+        $container->addCompilerPass(new TemplatingPass());
         $container->addCompilerPass(new AddConstraintValidatorsPass());
+        $container->addCompilerPass(new AddClassesToCachePass());
     }
 }

@@ -14,6 +14,7 @@ namespace Symfony\Bundle\FrameworkBundle\Tests;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 use Symfony\Component\DependencyInjection\Loader\LoaderInterface;
 use Symfony\Bundle\FrameworkBundle\Util\Filesystem;
+use Symfony\Component\HttpFoundation\UniversalClassLoader;
 
 class Kernel extends BaseKernel
 {
@@ -29,6 +30,13 @@ class Kernel extends BaseKernel
         }
 
         parent::__construct('env', true);
+
+        $loader = new UniversalClassLoader();
+        $loader->registerNamespaces(array(
+            'TestBundle'      => __DIR__.'/Fixtures/',
+            'TestApplication' => __DIR__.'/Fixtures/',
+        ));
+        $loader->register();
     }
 
     public function __destruct()
@@ -46,6 +54,10 @@ class Kernel extends BaseKernel
     {
         return array(
             new \Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
+            new \TestBundle\FooBundle\FooBundle(),
+            new \TestBundle\Sensio\FooBundle\SensioFooBundle(),
+            new \TestApplication\Sensio\FooBundle\SensioFooBundle(),
+            new \TestBundle\Sensio\Cms\FooBundle\SensioCmsFooBundle(),
         );
     }
 
@@ -54,6 +66,8 @@ class Kernel extends BaseKernel
         return array(
             'Application'     => __DIR__.'/../src/Application',
             'Bundle'          => __DIR__.'/../src/Bundle',
+            'TestApplication' => __DIR__.'/Fixtures/TestApplication',
+            'TestBundle'      => __DIR__.'/Fixtures/TestBundle',
             'Symfony\\Bundle' => __DIR__.'/../src/vendor/symfony/src/Symfony/Bundle',
         );
     }

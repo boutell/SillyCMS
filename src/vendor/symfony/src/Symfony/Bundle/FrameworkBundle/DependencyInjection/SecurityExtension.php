@@ -2,6 +2,7 @@
 
 namespace Symfony\Bundle\FrameworkBundle\DependencyInjection;
 
+use Symfony\Component\DependencyInjection\Alias;
 use Symfony\Component\DependencyInjection\Parameter;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
@@ -385,7 +386,7 @@ class SecurityExtension extends Extension
 
         // a lazy loaded, message digest or plaintext encoder
         if (!isset($config['algorithm'])) {
-            throw new \RuntimeException('"algoritm" must be defined.');
+            throw new \RuntimeException('"algorithm" must be defined.');
         }
 
         // plaintext encoder
@@ -443,7 +444,7 @@ class SecurityExtension extends Extension
 
         // Existing DAO service provider
         if (isset($provider['id'])) {
-            $container->setAlias($name, $provider['id']);
+            $container->setAlias($name, new Alias($provider['id'], false));
 
             return $provider['id'];
         }

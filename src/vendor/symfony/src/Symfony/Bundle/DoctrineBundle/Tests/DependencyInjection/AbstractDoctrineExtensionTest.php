@@ -65,7 +65,7 @@ abstract class AbstractDoctrineExtensionTest extends TestCase
 
         $container->getCompilerPassConfig()->setOptimizationPasses(array());
         $container->getCompilerPassConfig()->setRemovingPasses(array());
-        $container->freeze();
+        $container->compile();
 
         // doctrine.dbal.mysql_connection
         $arguments = $container->getDefinition('doctrine.dbal.mysql_connection')->getArguments();
@@ -78,6 +78,17 @@ abstract class AbstractDoctrineExtensionTest extends TestCase
 
         // doctrine.dbal.sqlite_connection
         $arguments = $container->getDefinition('doctrine.dbal.sqlite_connection')->getArguments();
+        $config = $arguments[0];
+        $this->assertArrayHasKey('memory', $config);
+
+        // doctrine.dbal.oci8_connection
+        $arguments = $container->getDefinition('doctrine.dbal.oci_connection')->getArguments();
+        $config = $arguments[0];
+        $this->assertArrayHasKey('charset', $config);
+    }
+
+    public function testDbalLoadFromXmlSingleConnections()
+    {
         $container = $this->getContainer();
         $loader = new DoctrineExtension();
         $container->registerExtension($loader);
@@ -88,7 +99,7 @@ abstract class AbstractDoctrineExtensionTest extends TestCase
 
         $container->getCompilerPassConfig()->setOptimizationPasses(array());
         $container->getCompilerPassConfig()->setRemovingPasses(array());
-        $container->freeze();
+        $container->compile();
 
         // doctrine.dbal.mysql_connection
         $arguments = $container->getDefinition('doctrine.dbal.mysql_connection')->getArguments();
@@ -143,7 +154,7 @@ abstract class AbstractDoctrineExtensionTest extends TestCase
         $this->assertEquals('Doctrine\DBAL\DriverManager', $definition->getClass());
 
         $args = $definition->getArguments();
-        $this->assertEquals('Doctrine\DBAL\Driver\PDOMySql\Driver', $args[0]['driverClass']);
+        $this->assertEquals('pdo_mysql', $args[0]['driver']);
         $this->assertEquals('localhost', $args[0]['host']);
         $this->assertEquals('root', $args[0]['user']);
         $this->assertEquals('doctrine.dbal.default_connection.configuration', (string) $args[1]);
@@ -211,14 +222,14 @@ abstract class AbstractDoctrineExtensionTest extends TestCase
 
         $container->getCompilerPassConfig()->setOptimizationPasses(array());
         $container->getCompilerPassConfig()->setRemovingPasses(array());
-        $container->freeze();
+        $container->compile();
 
         $definition = $container->getDefinition('doctrine.dbal.default_connection');
         $this->assertEquals('Doctrine\DBAL\DriverManager', $definition->getClass());
 
         $this->assertDICConstructorArguments($definition, array(
             array(
-                'driverClass' => 'Doctrine\DBAL\Driver\PDOMySql\Driver',
+                'driver' => 'pdo_mysql',
                 'driverOptions' => array(),
                 'host' => 'localhost',
                 'user' => 'root',
@@ -247,14 +258,14 @@ abstract class AbstractDoctrineExtensionTest extends TestCase
 
         $container->getCompilerPassConfig()->setOptimizationPasses(array());
         $container->getCompilerPassConfig()->setRemovingPasses(array());
-        $container->freeze();
+        $container->compile();
 
         $definition = $container->getDefinition('doctrine.dbal.default_connection');
         $this->assertEquals('Doctrine\DBAL\DriverManager', $definition->getClass());
 
         $this->assertDICConstructorArguments($definition, array(
             array(
-                'driverClass' => 'Doctrine\DBAL\Driver\PDOSqlite\Driver',
+                'driver' => 'pdo_sqlite',
                 'driverOptions' => array(),
                 'dbname' => 'sqlite_db',
                 'host' => 'localhost',
@@ -286,19 +297,19 @@ abstract class AbstractDoctrineExtensionTest extends TestCase
 
         $container->getCompilerPassConfig()->setOptimizationPasses(array());
         $container->getCompilerPassConfig()->setRemovingPasses(array());
-        $container->freeze();
+        $container->compile();
 
         $definition = $container->getDefinition('doctrine.dbal.conn1_connection');
         $this->assertEquals('Doctrine\DBAL\DriverManager', $definition->getClass());
 
         $args = $definition->getArguments();
-        $this->assertEquals('Doctrine\DBAL\Driver\PDOSqlite\Driver', $args[0]['driverClass']);
+        $this->assertEquals('pdo_sqlite', $args[0]['driver']);
         $this->assertEquals('localhost', $args[0]['host']);
         $this->assertEquals('sqlite_user', $args[0]['user']);
         $this->assertEquals('doctrine.dbal.conn1_connection.configuration', (string) $args[1]);
         $this->assertEquals('doctrine.dbal.conn1_connection.event_manager', (string) $args[2]);
 
-        $this->assertEquals('doctrine.orm.dm2_entity_manager', $container->getAlias('doctrine.orm.entity_manager'));
+        $this->assertEquals('doctrine.orm.dm2_entity_manager', (string) $container->getAlias('doctrine.orm.entity_manager'));
 
         $definition = $container->getDefinition('doctrine.orm.dm1_entity_manager');
         $this->assertEquals('%doctrine.orm.entity_manager_class%', $definition->getClass());
@@ -315,7 +326,7 @@ abstract class AbstractDoctrineExtensionTest extends TestCase
         $this->assertEquals('Doctrine\DBAL\DriverManager', $definition->getClass());
 
         $args = $definition->getArguments();
-        $this->assertEquals('Doctrine\DBAL\Driver\PDOSqlite\Driver', $args[0]['driverClass']);
+        $this->assertEquals('pdo_sqlite', $args[0]['driver']);
         $this->assertEquals('localhost', $args[0]['host']);
         $this->assertEquals('sqlite_user', $args[0]['user']);
         $this->assertEquals('doctrine.dbal.conn2_connection.configuration', (string) $args[1]);
@@ -454,7 +465,7 @@ abstract class AbstractDoctrineExtensionTest extends TestCase
 
         $container->getCompilerPassConfig()->setOptimizationPasses(array());
         $container->getCompilerPassConfig()->setRemovingPasses(array());
-        $container->freeze();
+        $container->compile();
 
         $definition = $container->getDefinition('doctrine.orm.dm1_metadata_cache');
         $this->assertDICDefinitionClass($definition, '%doctrine.orm.cache.xcache_class%');
@@ -473,7 +484,7 @@ abstract class AbstractDoctrineExtensionTest extends TestCase
 
         $container->getCompilerPassConfig()->setOptimizationPasses(array());
         $container->getCompilerPassConfig()->setRemovingPasses(array());
-        $container->freeze();
+        $container->compile();
 
         $definition = $container->getDefinition('doctrine.orm.default_metadata_cache');
         $this->assertDICDefinitionClass($definition, 'Doctrine\Common\Cache\MemcacheCache');
@@ -496,7 +507,7 @@ abstract class AbstractDoctrineExtensionTest extends TestCase
 
         $container->getCompilerPassConfig()->setOptimizationPasses(array());
         $container->getCompilerPassConfig()->setRemovingPasses(array());
-        $container->freeze();
+        $container->compile();
 
         $this->assertEquals('apc', $container->getParameter('doctrine.orm.metadata_cache_driver'));
         $this->assertTrue($container->getParameter('doctrine.orm.auto_generate_proxy_classes'));
@@ -512,7 +523,7 @@ abstract class AbstractDoctrineExtensionTest extends TestCase
         $this->loadFromFile($container, 'orm_single_em_bundle_mappings');
 
         $container->getCompilerPassConfig()->setRemovingPasses(array());
-        $container->freeze();
+        $container->compile();
 
         $definition = $container->getDefinition('doctrine.orm.default_metadata_driver');
 
@@ -558,7 +569,7 @@ abstract class AbstractDoctrineExtensionTest extends TestCase
         $this->loadFromFile($container, 'orm_multiple_em_bundle_mappings');
 
         $container->getCompilerPassConfig()->setRemovingPasses(array());
-        $container->freeze();
+        $container->compile();
 
         $def1 = $container->getDefinition('doctrine.orm.em1_metadata_driver');
         $def2 = $container->getDefinition('doctrine.orm.em2_metadata_driver');

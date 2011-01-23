@@ -11,10 +11,6 @@
  */
 class Twig_Node_Expression_GetAttr extends Twig_Node_Expression
 {
-    const TYPE_ANY = 'any';
-    const TYPE_ARRAY = 'array';
-    const TYPE_METHOD = 'method';
-
     public function __construct(Twig_Node_Expression $node, Twig_Node_Expression $attribute, Twig_NodeInterface $arguments, $type, $lineno)
     {
         parent::__construct(array('node' => $node, 'attribute' => $attribute, 'arguments' => $arguments), array('type' => $type), $lineno);
@@ -39,12 +35,9 @@ class Twig_Node_Expression_GetAttr extends Twig_Node_Expression
 
         $compiler
             ->raw('), ')
-            ->repr($this->getAttribute('type'));
-
-        if ($this->hasAttribute('is_defined_test')) {
-            $compiler->raw(', true');
-        }
-
-        $compiler->raw(')');
+            ->repr($this->getAttribute('type'))
+            ->raw($this->hasAttribute('is_defined_test') ? ', true' : ', false')
+            ->raw(sprintf(', %d', $this->lineno))
+            ->raw(')');
     }
 }

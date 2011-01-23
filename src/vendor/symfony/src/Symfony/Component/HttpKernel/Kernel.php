@@ -228,23 +228,6 @@ abstract class Kernel implements HttpKernelInterface, \Serializable
         return false;
     }
 
-    /**
-     * Returns the Bundle name for a given class.
-     *
-     * @param string $class A class name
-     *
-     * @return string The Bundle name or null if the class does not belongs to a bundle
-     */
-    public function getBundleForClass($class)
-    {
-        $namespace = substr($class, 0, strrpos($class, '\\'));
-        foreach (array_keys($this->getBundleDirs()) as $prefix) {
-            if (0 === $pos = strpos($namespace, $prefix)) {
-                return substr($namespace, strlen($prefix) + 1, strpos($class, 'Bundle\\') + 7);
-            }
-        }
-    }
-
     public function getName()
     {
         return $this->name;
@@ -297,7 +280,8 @@ abstract class Kernel implements HttpKernelInterface, \Serializable
         $reload = $this->debug ? $this->needsReload($class, $location) : false;
 
         if ($reload || !file_exists($location.'.php')) {
-            $this->buildContainer($class, $location.'.php');
+            $container = $this->buildContainer();
+            $this->dumpContainer($container, $class, $location.'.php');
         }
 
         require_once $location.'.php';
@@ -360,7 +344,7 @@ abstract class Kernel implements HttpKernelInterface, \Serializable
         return false;
     }
 
-    protected function buildContainer($class, $file)
+    protected function buildContainer()
     {
         $parameterBag = new ParameterBag($this->getKernelParameters());
 
@@ -376,8 +360,13 @@ abstract class Kernel implements HttpKernelInterface, \Serializable
         if (null !== $cont = $this->registerContainerConfiguration($this->getContainerLoader($container))) {
             $container->merge($cont);
         }
-        $container->freeze();
+        $container->compile();
 
+        return $container;
+    }
+
+    protected function dumpContainer(ContainerBuilder $container, $class, $file)
+    {
         foreach (array('cache', 'logs') as $name) {
             $dir = $container->getParameter(sprintf('kernel.%s_dir', $name));
             if (!is_dir($dir)) {
@@ -445,9 +434,6 @@ abstract class Kernel implements HttpKernelInterface, \Serializable
 
         // replace multiple new lines with a single newline
         $output = preg_replace(array('/\s+$/Sm', '/\n+/S'), "\n", $output);
-
-        // reformat {} "a la python"
-        $output = preg_replace(array('/\n\s*\{/', '/\n\s*\}/'), array(' {', ' }'), $output);
 
         return $output;
     }

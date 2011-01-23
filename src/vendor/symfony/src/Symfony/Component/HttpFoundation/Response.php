@@ -19,7 +19,7 @@ namespace Symfony\Component\HttpFoundation;
 class Response
 {
     /**
-     * @var \Symfony\Component\HttpFoundation\HeaderBag
+     * @var \Symfony\Component\HttpFoundation\ResponseHeaderBag
      */
     public $headers;
 
@@ -140,6 +140,11 @@ class Response
             foreach ($values as $value) {
                 header($name.': '.$value);
             }
+        }
+
+        // cookies
+        foreach ($this->headers->getCookies() as $cookie) {
+            setcookie($cookie->getName(), $cookie->getValue(), $cookie->getExpire(), $cookie->getPath(), $cookie->getDomain(), $cookie->isSecure(), $cookie->isHttpOnly());
         }
     }
 

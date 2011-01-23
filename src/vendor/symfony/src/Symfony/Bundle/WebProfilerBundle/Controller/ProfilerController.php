@@ -36,7 +36,7 @@ class ProfilerController extends ContainerAware
         $profiler = $this->container->get('profiler')->loadFromToken($token);
 
         if ($profiler->isEmpty()) {
-            return $this->container->get('templating')->renderResponse('WebProfilerBundle:Profiler:notfound.twig', array('token' => $token));
+            return $this->container->get('templating')->renderResponse('WebProfilerBundle:Profiler:notfound.twig.html', array('token' => $token));
         }
 
         if (!$profiler->has($panel)) {
@@ -106,11 +106,11 @@ class ProfilerController extends ContainerAware
         $profiler->disable();
 
         $file = $this->container->get('request')->files->get('file');
-        if (!$file || 0 !== $file['error']) {
+        if (!$file || UPLOAD_ERR_OK !== $file->getError()) {
             throw new \RuntimeException('Problem uploading the data.');
         }
 
-        $token = $profiler->import(file_get_contents($file['tmp_name']));
+        $token = $profiler->import(file_get_contents($file->getPath()));
 
         if (false === $token) {
             throw new \RuntimeException('Problem uploading the data (token already exists).');
@@ -146,7 +146,7 @@ class ProfilerController extends ContainerAware
             $position = false === strpos($this->container->get('request')->headers->get('user-agent'), 'Mobile') ? 'fixed' : 'absolute';
         }
 
-        return $this->container->get('templating')->renderResponse('WebProfilerBundle:Profiler:toolbar.twig', array(
+        return $this->container->get('templating')->renderResponse('WebProfilerBundle:Profiler:toolbar.twig.html', array(
             'position'  => $position,
             'profiler'  => $profiler,
             'templates' => $this->getTemplates($profiler),
@@ -168,10 +168,10 @@ class ProfilerController extends ContainerAware
         $url = $session->get('_profiler_search_url');
         $limit = $session->get('_profiler_search_limit');
 
-        return $this->container->get('templating')->renderResponse('WebProfilerBundle:Profiler:search.twig', array(
+        return $this->container->get('templating')->renderResponse('WebProfilerBundle:Profiler:search.twig.html', array(
             'token'    => $token,
             'profiler' => $profiler,
-            'tokens'   => $profiler->find($ip, $url, 10),
+            'tokens'   => $profiler->find($ip, $url, $limit),
             'ip'       => $ip,
             'url'      => $url,
             'limit'    => $limit,
@@ -193,10 +193,10 @@ class ProfilerController extends ContainerAware
         $url = $session->get('_profiler_search_url');
         $limit = $session->get('_profiler_search_limit');
 
-        return $this->container->get('templating')->renderResponse('WebProfilerBundle:Profiler:results.twig', array(
+        return $this->container->get('templating')->renderResponse('WebProfilerBundle:Profiler:results.twig.html', array(
             'token'    => $token,
             'profiler' => $this->container->get('profiler')->loadFromToken($token),
-            'tokens'   => $profiler->find($ip, $url, 10),
+            'tokens'   => $profiler->find($ip, $url, $limit),
             'ip'       => $ip,
             'url'      => $url,
             'limit'    => $limit,
@@ -233,7 +233,7 @@ class ProfilerController extends ContainerAware
         $tokens = $profiler->find($ip, $url, $limit);
 
         $response = $this->container->get('response');
-        $response->setRedirect($this->container->get('router')->generate('_profiler_search_results', array('token' => $tokens[0]['token'])));
+        $response->setRedirect($this->container->get('router')->generate('_profiler_search_results', array('token' => $tokens ? $tokens[0]['token'] : '')));
 
         return $response;
     }
@@ -246,11 +246,11 @@ class ProfilerController extends ContainerAware
                 $name = $this->container->get($id)->getName();
                 $template = $tags[0]['template'];
                 if ($profiler->has($name)) {
-                    if (!$this->container->get('templating')->exists($template.'.twig')) {
+                    if (!$this->container->get('templating')->exists($template.'.twig.html')) {
                         continue;
                     }
 
-                    $templates[$name] = $template.'.twig';
+                    $templates[$name] = $template.'.twig.html';
                 }
             }
         }
