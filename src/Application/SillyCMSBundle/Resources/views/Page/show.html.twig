@@ -1,0 +1,12 @@
+{% extends "::layout.html.twig" %}
+{%block title %}
+	{{title}}
+{% endblock %}
+{%block body %}
+	{%if has_role('IS_AUTHENTICATED_FULLY') %}
+		<div class="controls">
+			<a class="button" href="{{ path('edit', { 'slug': slug }) }}">Edit</a>
+		</div>
+	{%endif %}
+	{{body|wiki_text}}
+{% endblock %}
