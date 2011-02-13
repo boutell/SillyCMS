@@ -1,0 +1,12 @@
+[submodule "src/FOS/UserBundle"]
+	path = src/FOS/UserBundle
+	url = git://github.com/FriendsOfSymfony/UserBundle.git
+[submodule "src/Senio/FrameworkExtraBundle"]
+	path = src/Senio/FrameworkExtraBundle
+	url = git://github.com/sensio/FrameworkExtraBundle.git
+[submodule "src/Sensio/FrameworkExtraBundle"]
+	path = src/Sensio/FrameworkExtraBundle
+	url = git://github.com/sensio/FrameworkExtraBundle.git
+[submodule "src/Sensio/Bundle/FrameworkExtraBundle"]
+	path = src/Sensio/Bundle/FrameworkExtraBundle
+	url = git://github.com/sensio/FrameworkExtraBundle.git
