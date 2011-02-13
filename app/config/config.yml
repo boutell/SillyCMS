@@ -4,39 +4,54 @@ app.config:
     csrf_secret:   xxxxxxxxxx
     router:        { resource: "%kernel.root_dir%/config/routing.yml" }
     validation:    { enabled: true, annotations: true }
-    templating:    {} #assets_version: SomeVersionScheme
+    templating:    { engines: ['twig'] }
     session:
         default_locale: en
         lifetime:       3600
         auto_start:     true
 
 security.config:
-    # There must be an "encoder" for every user class. All user classes extend
-    # AccountInterface. I'm using in-memory users so I'm not sure why I really need
-    # an encoder. I think this is what is done to the password before it is compared
-    # to the setting under "providers" below, so in principle I could have a hashed
-    # password in this config file.
-    encoders:
-        Symfony\Component\Security\User\AccountInterface: plaintext
     providers:
-        main:
-            users:
-                admin: { password: demo, roles: ROLE_ADMIN }
-    # Require a proper login for /admin actions, only an anonymous user to browse
-    access_control:
-        - { path: /admin/.*, role: ROLE_ADMIN }
-        - { path: /.*, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        fos_user_provider:
+            password_encoder: sha512
+            id: fos_user.user_manager
     firewalls:
         main:
-            pattern:    ^.*$
-            form-login: true
-            anonymous: true
+            pattern: .*
+            form_login:
+                provider:                       fos_user_provider
+                login_path:                     /login
+                use_forward:                    false
+                check_path:                     /login-check
+                failure_path:                   null
             logout: true
-                    
+            anonymous: true
+    access_control:
+        - { path: "/inbox.*", role: IS_AUTHENTICATED_FULLY }
+        - { path: "/.*", role: IS_AUTHENTICATED_ANONYMOUSLY }
+
+fos_user.config:
+    db_driver: orm
+    provider_key: main
+    encoder:
+        iterations: 1
+        encodeHashAsBase64: true
+        algorithm: sha512
+    class:
+        model:
+            user: Application\UserBundle\Entity\User
+        form:
+            user: FOS\UserBundle\Form\UserForm
+        controller:
+            user: Application\UserBundle\Controller\UserController
+            security: Application\UserBundle\Controller\SecurityController
+
 # Twig Configuration
 twig.config:
     debug:            %kernel.debug%
     strict_variables: %kernel.debug%
+
+extra.config: ~
 
 ## Doctrine Configuration
 doctrine.dbal:
@@ -47,6 +62,8 @@ doctrine.orm:
     auto_generate_proxy_classes: %kernel.debug%
     mappings:
         SillyCMSBundle: ~
+        FOSUserBundle: ~
+        UserBundle: ~
 
 ## Swiftmailer Configuration
 #swiftmailer.config:
@@ -64,9 +81,5 @@ services:
        class: Application\SillyCMSBundle\Twig\Extensions\WikiText
        tags:
            - { name: twig.extension }
-       service: service_container
-       service_container: service
-       argument:
-         service_container: service
        arguments:
          - @service_container

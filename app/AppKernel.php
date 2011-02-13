@@ -1,7 +1,4 @@
 <?php
-
-require_once __DIR__.'/../src/autoload.php';
-
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\DependencyInjection\Loader\LoaderInterface;
 
@@ -22,15 +19,19 @@ class AppKernel extends Kernel
             new Symfony\Bundle\ZendBundle\ZendBundle(),
             new Symfony\Bundle\SwiftmailerBundle\SwiftmailerBundle(),
             new Symfony\Bundle\DoctrineBundle\DoctrineBundle(),
+            new Symfony\Bundle\SecurityBundle\SecurityBundle(),
             //new Symfony\Bundle\DoctrineMigrationsBundle\DoctrineMigrationsBundle(),
             //new Symfony\Bundle\DoctrineMongoDBBundle\DoctrineMongoDBBundle(),
+            new FOS\UserBundle\FOSUserBundle(),
 
             // register your bundles
-            new Application\SecurityBundle\SecurityBundle(),
             new Application\SillyCMSBundle\SillyCMSBundle(),
+            new Application\UserBundle\UserBundle(),
+            
+            new Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle(),
         );
 
-        if ($this->isDebug()) {
+        if ('dev' === $this->getEnvironment()) {
             $bundles[] = new Symfony\Bundle\WebProfilerBundle\WebProfilerBundle();
         }
 

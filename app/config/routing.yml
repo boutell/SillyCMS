@@ -1,4 +1,6 @@
-Security:
-    resource: SecurityBundle/Resources/config/routing.yml
+security:
+    resource: @FOSUserBundle/Resources/config/routing/security.xml
+user:
+    resource: @FOSUserBundle/Resources/config/routing/user.xml
 SillyCMS:
-    resource: SillyCMSBundle/Resources/config/routing.yml
+    resource: @SillyCMSBundle/Resources/config/routing.yml
