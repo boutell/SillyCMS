@@ -89,9 +89,16 @@ class WikiText extends Twig_Extension
         //PHP 5.3 rocks so we can use anonymous function goodness even though it is overkill
         $router = $this->getRouter();
         $text = \preg_replace_callback("/\[\[(.*?)\]\]/m", function($match) use ($router) {
-            $name = $match[1];
-            
-            return '<a href="'.$router->generate('show', array('slug' => $name))."\">$name</a>";
+            $parts = \explode('|', $match[1]);
+            if(count($parts) > 1)
+            {
+                $slug = $parts[0];
+                $name = $parts[1];
+            } else
+            {
+                $name = $slug = $match[1];
+            }
+            return '<a href="'.$router->generate('show', array('slug' => $slug))."\">$name</a>";
 
         }, $text);
 
