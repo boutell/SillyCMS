@@ -43,25 +43,30 @@ class PageController extends Controller
       return $this->get('doctrine.orm.entity_manager');
     }
     
+    /**
+     * @Template
+     */
     public function indexAction()
     {
       $em = $this->getEm();
       $pages = $em->createQuery('select p from SillyCMSBundle:Page p order by p.title')->getResult();
-      return $this->render('SillyCMSBundle:Page:index.twig', array('pages' => $pages));
+      return array('pages' => $pages);
     }
-    
+
+    /**
+     * @Template
+     */
     public function showAction($slug)
     {
-        $this->pre($this->getParam('slug'));
-        return $this->render('SillyCMSBundle:Page:show.twig', array('title' => $this->page->getTitle(), 'slug' => $this->page->getSlug(), 'body' => $this->page->getBody()));
+        $this->pre($slug);
+        return array('title' => $this->page->getTitle(), 'slug' => $this->page->getSlug(), 'body' => $this->page->getBody());
     }
     
     public function editAction()
     {
-        $slug = $this->getParam('slug');
         $this->pre($slug);
         $form = $this->getForm();
-        return $this->render('SillyCMSBundle:Page:edit.twig', array('form' => $form, 'slug' => $slug));
+        return $this->render('SillyCMSBundle:Page:edit.twig.html', array('form' => $form, 'slug' => $slug));
     }
     
     public function saveAction()
@@ -79,6 +84,6 @@ class PageController extends Controller
           $em->flush();
           return $this->redirect($this->generateUrl('show', array('slug' => $slug)));
         }
-        return $this->render('SillyCMSBundle:Page:edit.twig', array('form' => $form, 'slug' => $slug));
+        return $this->render('SillyCMSBundle:Page:edit.twig.html', array('form' => $form, 'slug' => $slug));
     }
 }

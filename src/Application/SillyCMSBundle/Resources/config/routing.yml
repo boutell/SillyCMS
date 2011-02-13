@@ -1,5 +1,5 @@
 edit:
-    pattern:  /admin/edit
+    pattern:  /admin/edit/{slug}
     defaults:
       _controller: SillyCMSBundle:Page:edit
 
@@ -9,6 +9,15 @@ save:
       _controller: SillyCMSBundle:Page:save
     
 show:
-    pattern:  /:slug
+    pattern:  /{slug}
     defaults: { _controller: SillyCMSBundle:Page:show }
     requirements: { slug: ^.*$ }
+
+fos_user_user_show:
+    pattern:  /admin/user/{username}
+
+fos_user_user_update:
+    pattern:  /admin/user/{username}/edit
+
+fos_user_user_delete:
+    pattern:  /admin/user/{username}/delete
